@@ -1,0 +1,410 @@
+<title>길드 엠블럼 색상 시안</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* layout (Picrew style): preview pinned on top, category tabs under it, swatch grid scrolls below.
+   Desktop: preview left, tabs + swatches right. UI is achromatic so only the emblem carries colour. */
+:root{
+  --bg:#f3f3f3; --panel:#ffffff; --panel2:#ebebeb; --fg:#161616; --muted:#6f6f6f; --line:#d6d6d6;
+  --ink:#161616; --ink-fg:#ffffff; --check-a:#c9c9c9; --check-b:#a6a6a6;
+  --body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --mono:ui-monospace,Consolas,'Courier New',monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141414; --panel:#1e1e1e; --panel2:#2a2a2a; --fg:#ededed; --muted:#9a9a9a; --line:#383838;
+    --ink:#ededed; --ink-fg:#141414; --check-a:#3a3a3a; --check-b:#2a2a2a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --panel:#1e1e1e; --panel2:#2a2a2a; --fg:#ededed; --muted:#9a9a9a; --line:#383838;
+  --ink:#ededed; --ink-fg:#141414; --check-a:#3a3a3a; --check-b:#2a2a2a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.app{min-height:100%;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 0}
+.titlebar{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+h1{font-size:15px;font-weight:700;margin:0;letter-spacing:.02em}
+.titlebar span{font-size:12px;color:var(--muted)}
+.preview{position:relative;width:min(100%,42vh,520px);aspect-ratio:1;max-width:100%;margin:0 auto;border-radius:8px;overflow:hidden;background:var(--panel2)}
+.preview.checker{background-color:var(--check-a);background-image:
+  linear-gradient(45deg,var(--check-b) 25%,transparent 25%),linear-gradient(-45deg,var(--check-b) 25%,transparent 25%),
+  linear-gradient(45deg,transparent 75%,var(--check-b) 75%),linear-gradient(-45deg,transparent 75%,var(--check-b) 75%);
+  background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.preview canvas{display:block;width:100%;height:100%;max-width:100%}
+.preview .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);background:var(--panel2);font-size:13px}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding-bottom:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:8px 10px 10px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.tab .dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--fg)}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--ink);font-weight:700}
+.tab[disabled]{opacity:.4;cursor:default}
+.content{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px;min-width:0}
+.pane[hidden]{display:none!important}
+.pane h2{font-size:13px;font-weight:700;margin:0 0 10px;color:var(--fg)}
+.pane h2 small{font-weight:400;color:var(--muted);margin-left:6px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:10px;max-width:640px}
+.chip{position:relative;width:100%;aspect-ratio:1;border-radius:50%;border:1px solid rgba(128,128,128,.35);padding:0;cursor:pointer;background:none}
+.chip[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:3px}
+.chip.original::after{content:"원본";position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap}
+.chips.with-labels{margin-bottom:16px}
+.custom{display:flex;align-items:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+.custom .swatch{width:44px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer}
+.custom .swatch::-webkit-color-swatch-wrapper{padding:2px}
+.custom .swatch::-webkit-color-swatch{border:0;border-radius:6px}
+.hex{width:104px;font-family:var(--mono);font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);text-transform:uppercase}
+.hex.bad{border-color:var(--fg);border-style:dashed}
+.opt{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);max-width:640px}
+.opt label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+.opt .lead{color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:640px}
+.seg button{padding:12px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button.b{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-weight:500;cursor:pointer}
+button.b.primary{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
+button.b:disabled{opacity:.5;cursor:default}
+select,input[type=text]{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg)}
+.block{max-width:640px}
+.block + .block{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.code{display:flex;gap:8px;margin-top:8px}
+.code input{flex:1;min-width:0;font-family:var(--mono);font-size:12px}
+.msg{min-height:1.4em;margin-top:8px;color:var(--muted);font-size:13px}
+.hint{color:var(--muted);font-size:12px;margin:8px 0 0}
+.saved{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.saved figure{margin:0;position:relative;width:96px}
+.saved img{display:block;width:96px;height:96px;border-radius:8px;border:1px solid var(--line);cursor:pointer;background:var(--panel2)}
+.saved img.cur{outline:3px solid var(--ink);outline-offset:2px}
+.saved figcaption{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-family:var(--mono)}
+.saved .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:13px;line-height:22px;cursor:pointer;padding:0}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media (min-width:900px){
+  .app{display:grid;grid-template-columns:minmax(0,1fr) 460px;grid-template-rows:auto auto 1fr;max-width:1180px;margin:0 auto;gap:0 28px;
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+  .top{position:static;border:0;padding:0;background:transparent;display:contents}
+  .titlebar{grid-column:1/-1;margin-bottom:14px}
+  .preview{grid-column:1;grid-row:2/4;width:min(100%,620px);position:sticky;top:16px;align-self:start}
+  .tabs{grid-column:2;grid-row:2;flex-wrap:wrap;overflow:visible;margin:0;border-bottom:1px solid var(--line)}
+  .tab{min-width:0;padding-inline:8px}
+  .content{grid-column:2;grid-row:3;padding:0;margin-top:16px}
+}
+</style>
+
+<div class="app">
+  <div class="top">
+    <div class="titlebar"><h1>길드 엠블럼 색상 시안</h1><span>영역별 색 변경 · PNG 저장</span></div>
+    <div class="preview" id="previewBox">
+      <canvas id="preview" width="1000" height="1000" aria-label="엠블럼 미리보기"></canvas>
+      <div class="loading" id="loading">불러오는 중…</div>
+    </div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="편집 항목"></div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+const META = {
+  plain:  ['bg','line','gold','cream','gem_top','gem_left','gem_mid','gem_right','wings'],
+  ribbon: ['bg','line','gold','cream','gem_top','gem_left','gem_mid','gem_right','wings','ribbon'],
+  text:   ['bg','line','gold','cream','text','gem_top','gem_left','gem_mid','gem_right','wings','ribbon'],
+};
+const FULL = 2475, PREV = 1000;
+const GROUPS = [
+  ['metal',  '금속',      '테두리 · 별 · 왕관 · 나비 몸통',   '#E0C7A9'],
+  ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
+  ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
+  ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
+  ['bg',     '배경',      '나비 윤곽선도 이 색을 씁니다',    '#222A39'],
+  ['text',   '글씨',      '리본 + 글씨 버전에만 보입니다',   '#FFFFFF'],
+];
+const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
+const VERSION_LABEL = {plain:'리본 없음', ribbon:'리본', text:'리본 + 글씨'};
+
+/* preset swatches: 12 hues × 4 tones, then neutrals */
+function hsl(h, s, l){
+  s /= 100; l /= 100; const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return '#' + [f(0), f(8), f(4)].map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+const PRESETS = [];
+for (const [s, l] of [[70, 82], [65, 66], [60, 50], [55, 32]]) for (let h = 0; h < 360; h += 30) PRESETS.push(hsl(h, s, l));
+PRESETS.push('#FFFFFF', '#F4EEE8', '#E0C7A9', '#C9C9C9', '#8A8A8A', '#555555', '#222A39', '#161616');
+
+const state = {version:'text', colors:{...DEFAULTS}, midGem:'mid', transparent:false, tab:'version'};
+
+function groupOf(layer){
+  switch(layer){
+    case 'gold': return 'metal';
+    case 'cream': return 'inner';
+    case 'wings': case 'gem_left': case 'gem_right': return 'outer';
+    case 'gem_mid': return state.midGem === 'mid' ? 'ribbon' : 'outer';
+    case 'gem_top': return state.midGem === 'top' ? 'ribbon' : 'outer';
+    case 'ribbon': return 'ribbon';
+    case 'text': return 'text';
+    default: return 'bg';
+  }
+}
+
+/* ---------- mask loading ---------- */
+const maskSrc = (tag, name) => (window.EMBEDDED_MASKS && window.EMBEDDED_MASKS[tag + '_' + name]) || ('masks/' + tag + '_' + name + '.png');
+const versions = {};
+function loadImage(src){
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error(src)); im.src = src; });
+}
+async function loadVersion(tag){
+  if (versions[tag]) return versions[tag];
+  const full = {}, prev = {};
+  await Promise.all(META[tag].map(async name => {
+    const im = await loadImage(maskSrc(tag, name));
+    full[name] = im;
+    const c = document.createElement('canvas'); c.width = c.height = PREV;
+    const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(im, 0, 0, PREV, PREV);
+    prev[name] = c;
+  }));
+  versions[tag] = {full, prev};
+  return versions[tag];
+}
+
+/* ---------- compositing: each pixel = sum over layers of colour × coverage ---------- */
+const scratchByW = {};
+function scratch(w){ if (!scratchByW[w]) { const c = document.createElement('canvas'); c.width = c.height = w; scratchByW[w] = c; } return scratchByW[w]; }
+function composite(target, masks, w){
+  const t = target.getContext('2d');
+  t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, w, w);
+  const s = scratch(w).getContext('2d');
+  for (const name of META[state.version]){
+    if (name === 'bg' && state.transparent) continue;
+    s.globalCompositeOperation = 'source-over'; s.clearRect(0, 0, w, w);
+    s.fillStyle = state.colors[groupOf(name)]; s.fillRect(0, 0, w, w);
+    s.globalCompositeOperation = 'destination-in'; s.drawImage(masks[name], 0, 0, w, w);
+    t.globalCompositeOperation = 'lighter'; t.drawImage(scratch(w), 0, 0);
+  }
+  t.globalCompositeOperation = 'source-over';
+}
+
+const preview = document.getElementById('preview');
+let renderQueued = false;
+function render(){
+  if (renderQueued) return; renderQueued = true;
+  requestAnimationFrame(async () => {
+    renderQueued = false;
+    const loading = document.getElementById('loading');
+    if (!versions[state.version]) {
+      loading.hidden = false;
+      try { await loadVersion(state.version); }
+      catch (e) { loading.textContent = '이미지를 불러오지 못했습니다 (' + e.message + ')'; return; }
+    }
+    composite(preview, versions[state.version].prev, PREV);
+    loading.hidden = true;
+    document.getElementById('previewBox').classList.toggle('checker', state.transparent);
+    syncUI();
+  });
+}
+
+/* ---------- share code: version.metal.outer.inner.ribbon.bg.text.gem[.t] ---------- */
+function encode(){
+  const c = state.colors;
+  return [state.version, c.metal, c.outer, c.inner, c.ribbon, c.bg, c.text].map(x => x.replace('#', '')).join('.')
+    + '.' + state.midGem + (state.transparent ? '.t' : '');
+}
+function decode(str){
+  const p = String(str || '').trim().replace(/^#/, '').split('.');
+  if (!META[p[0]] || p.length < 7) return null;
+  const hex = p.slice(1, 7); if (!hex.every(h => /^[0-9a-fA-F]{6}$/.test(h))) return null;
+  const [metal, outer, inner, ribbon, bg, text] = hex.map(h => '#' + h.toUpperCase());
+  return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text}, midGem: p[7] === 'top' ? 'top' : 'mid', transparent: p.includes('t')};
+}
+function apply(s){ Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent}); render(); }
+
+/* ---------- tabs ---------- */
+const TABS = [['version', '버전'], ...GROUPS.map(g => [g[0], g[1]]), ['export', '저장']];
+const tabsEl = document.getElementById('tabs'), contentEl = document.getElementById('content');
+for (const [id, label] of TABS){
+  const b = document.createElement('button'); b.className = 'tab'; b.type = 'button'; b.role = 'tab'; b.id = 'tab-' + id; b.dataset.tab = id;
+  const dot = id === 'version' ? '◧' : id === 'export' ? '↓' : '';
+  b.innerHTML = `<span class="dot" id="dot-${id}">${dot}</span><span>${label}</span>`;
+  b.addEventListener('click', () => { if (b.disabled) return; state.tab = id; syncUI(); });
+  tabsEl.appendChild(b);
+}
+
+/* version pane */
+const vPane = document.createElement('section'); vPane.className = 'pane'; vPane.id = 'pane-version';
+vPane.innerHTML = `<h2>버전</h2><div class="seg" id="versionSeg">
+  <button type="button" data-v="plain">리본 없음</button><button type="button" data-v="ribbon">리본</button><button type="button" data-v="text">리본 + 글씨</button></div>
+  <p class="hint">버전마다 같은 색 설정이 적용됩니다.</p>`;
+contentEl.appendChild(vPane);
+vPane.querySelector('#versionSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.version = b.dataset.v; render(); } });
+
+/* colour panes */
+for (const [key, label, note, def] of GROUPS){
+  const pane = document.createElement('section'); pane.className = 'pane'; pane.id = 'pane-' + key;
+  pane.innerHTML = `<h2>${label}<small>${note}</small></h2>
+    <div class="chips with-labels" id="chips-${key}"></div>
+    <div class="custom">
+      <input type="color" class="swatch" id="sw-${key}" value="${def}" aria-label="${label} 직접 선택">
+      <input type="text" class="hex" id="hx-${key}" value="${def}" maxlength="7" spellcheck="false" aria-label="${label} 16진수 코드">
+      <span class="hint" style="margin:0">직접 고르거나 코드를 입력</span>
+    </div>`;
+  const chips = pane.querySelector('.chips');
+  for (const c of [def, ...PRESETS.filter(p => p !== def)]){
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c === def ? ' original' : '');
+    b.style.background = c; b.dataset.c = c; b.title = c; b.setAttribute('aria-label', c);
+    b.addEventListener('click', () => setColor(key, c));
+    chips.appendChild(b);
+  }
+  pane.querySelector('.swatch').addEventListener('input', e => setColor(key, e.target.value));
+  const hx = pane.querySelector('.hex');
+  hx.addEventListener('input', e => {
+    let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { hx.classList.remove('bad'); setColor(key, v); } else hx.classList.add('bad');
+  });
+  hx.addEventListener('blur', () => { hx.value = state.colors[key]; hx.classList.remove('bad'); });
+  if (key === 'ribbon' || key === 'outer'){
+    const o = document.createElement('div'); o.className = 'opt';
+    o.innerHTML = `<span class="lead">왕관 "가운데 보석"은</span>
+      <label><input type="radio" name="midGem-${key}" value="mid"> 띠 가운데</label>
+      <label><input type="radio" name="midGem-${key}" value="top"> 꼭대기</label>`;
+    o.addEventListener('change', e => { state.midGem = e.target.value; render(); });
+    pane.appendChild(o);
+  }
+  if (key === 'bg'){
+    const o = document.createElement('div'); o.className = 'opt';
+    o.innerHTML = `<label><input type="checkbox" id="transparent"> 배경 투명으로 저장 (나비 윤곽선은 이 색 유지)</label>`;
+    o.querySelector('input').addEventListener('change', e => { state.transparent = e.target.checked; render(); });
+    pane.appendChild(o);
+  }
+  contentEl.appendChild(pane);
+}
+function setColor(key, v){ state.colors[key] = v.toUpperCase(); render(); }
+
+/* export pane */
+const xPane = document.createElement('section'); xPane.className = 'pane'; xPane.id = 'pane-export';
+xPane.innerHTML = `
+  <div class="block"><h2>PNG 저장</h2>
+    <div class="btns">
+      <select id="size" aria-label="저장 크기"><option value="2475">2475px (원본)</option><option value="1024">1024px</option><option value="512">512px</option><option value="256">256px</option></select>
+      <button class="b primary" type="button" id="download">PNG 저장</button>
+      <button class="b" type="button" id="reset">원본 색으로</button>
+    </div><div class="msg" id="dlMsg"></div></div>
+  <div class="block"><h2>시안 보관<small>이 브라우저에만 남습니다</small></h2>
+    <div class="btns"><button class="b" type="button" id="save">현재 시안 저장</button></div>
+    <div class="saved" id="saved" aria-label="저장한 시안"></div></div>
+  <div class="block"><h2>시안 코드<small>운영진끼리 공유할 때</small></h2>
+    <div class="code"><input type="text" id="codeOut" readonly aria-label="현재 시안 코드"><button class="b" type="button" id="copyCode">복사</button></div>
+    <div class="code"><input type="text" id="codeIn" placeholder="받은 코드 붙여넣기" aria-label="시안 코드 입력"><button class="b" type="button" id="loadCode">불러오기</button></div>
+    <div class="msg" id="codeMsg"></div></div>`;
+contentEl.appendChild(xPane);
+
+function syncUI(){
+  const code = encode();
+  for (const [key] of GROUPS){
+    const sw = document.getElementById('sw-' + key), hx = document.getElementById('hx-' + key);
+    if (sw.value.toUpperCase() !== state.colors[key]) sw.value = state.colors[key];
+    if (document.activeElement !== hx) hx.value = state.colors[key];
+    document.querySelectorAll('#chips-' + key + ' .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.c === state.colors[key])));
+    const dot = document.getElementById('dot-' + key); dot.style.background = state.colors[key]; dot.textContent = '';
+  }
+  const textTab = document.getElementById('tab-text'); textTab.disabled = state.version !== 'text';
+  if (textTab.disabled && state.tab === 'text') state.tab = 'ribbon';
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
+  document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);
+  document.querySelectorAll('#versionSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.version)));
+  document.querySelectorAll('input[name^="midGem-"]').forEach(r => r.checked = r.value === state.midGem);
+  document.getElementById('transparent').checked = state.transparent;
+  document.getElementById('codeOut').value = code;
+  document.querySelectorAll('#saved img').forEach(im => im.classList.toggle('cur', im.dataset.code === code));
+  try { localStorage.setItem('emblem-current', code); } catch (e) {}
+}
+
+document.getElementById('reset').addEventListener('click', () => { state.colors = {...DEFAULTS}; state.midGem = 'mid'; state.transparent = false; render(); });
+
+const codeMsg = document.getElementById('codeMsg');
+document.getElementById('copyCode').addEventListener('click', async () => {
+  const el = document.getElementById('codeOut');
+  try { await navigator.clipboard.writeText(el.value); codeMsg.textContent = '복사했습니다.'; }
+  catch (e) { el.focus(); el.select(); codeMsg.textContent = '자동 복사가 막혀 있어 선택해 두었습니다. 길게 눌러 복사하세요.'; }
+});
+document.getElementById('loadCode').addEventListener('click', () => {
+  const s = decode(document.getElementById('codeIn').value);
+  if (!s) { codeMsg.textContent = '코드 형식이 맞지 않습니다.'; return; }
+  apply(s); codeMsg.textContent = '불러왔습니다.';
+});
+
+/* ---------- saved variants ---------- */
+function readSaved(){ try { return JSON.parse(localStorage.getItem('emblem-variants') || '[]'); } catch (e) { return []; } }
+function writeSaved(list){ try { localStorage.setItem('emblem-variants', JSON.stringify(list)); } catch (e) {} }
+function renderSaved(){
+  const box = document.getElementById('saved'); box.innerHTML = '';
+  readSaved().forEach((it, i) => {
+    const f = document.createElement('figure');
+    f.innerHTML = `<img alt="저장한 시안 ${i + 1}" title="불러오기"><button class="x" type="button" aria-label="삭제">×</button><figcaption></figcaption>`;
+    const im = f.querySelector('img'); im.src = it.thumb; im.dataset.code = it.code;
+    f.querySelector('figcaption').textContent = VERSION_LABEL[it.code.split('.')[0]] + ' · ' + it.code.split('.')[2];
+    im.addEventListener('click', () => { const s = decode(it.code); if (s) apply(s); });
+    f.querySelector('.x').addEventListener('click', () => { const l = readSaved(); l.splice(i, 1); writeSaved(l); renderSaved(); });
+    box.appendChild(f);
+  });
+  syncUI();
+}
+document.getElementById('save').addEventListener('click', () => {
+  const c = document.createElement('canvas'); c.width = c.height = 192;
+  const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(preview, 0, 0, 192, 192);
+  const list = readSaved().filter(it => it.code !== encode());
+  list.push({code: encode(), thumb: c.toDataURL('image/png')});
+  writeSaved(list); renderSaved();
+});
+
+/* ---------- PNG export ---------- */
+const dlBtn = document.getElementById('download'), dlMsg = document.getElementById('dlMsg');
+const inArtifact = !!(window.claude && typeof window.claude.use === 'function');
+const downloadsNs = inArtifact ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+function downscale(src, size){
+  let cur = src, w = src.width;
+  while (w / 2 >= size){
+    const c = document.createElement('canvas'); w = Math.round(w / 2); c.width = c.height = w;
+    const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(cur, 0, 0, w, w); cur = c;
+  }
+  if (w === size) return cur;
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(cur, 0, 0, size, size); return c;
+}
+dlBtn.addEventListener('click', async () => {
+  dlBtn.disabled = true; dlMsg.textContent = '그리는 중…';
+  try {
+    const v = await loadVersion(state.version);
+    const full = document.createElement('canvas'); full.width = full.height = FULL;
+    composite(full, v.full, FULL);
+    const size = +document.getElementById('size').value;
+    const out = size === FULL ? full : downscale(full, size);
+    const blob = await new Promise(r => out.toBlob(r, 'image/png'));
+    const filename = 'emblem_' + encode().replace(/\./g, '_') + '_' + size + 'px.png';
+    const dl = await downloadsNs;
+    if (dl){
+      try { await dl.save({filename, data: blob}); dlMsg.textContent = '저장했습니다: ' + filename; }
+      catch (e) { dlMsg.textContent = e && e.code === 'declined' ? '저장을 취소했습니다.' : '이 화면에서는 저장할 수 없습니다 (' + (e && e.code || '오류') + ').'; }
+    } else if (inArtifact){
+      dlMsg.textContent = '이 화면에서는 파일 저장이 막혀 있습니다. GitHub Pages 주소나 HTML 파일로 열어서 저장하세요.';
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      dlMsg.textContent = '저장했습니다: ' + filename;
+    }
+  } catch (e) { dlMsg.textContent = '저장에 실패했습니다: ' + e.message; }
+  dlBtn.disabled = false;
+});
+
+/* ---------- start ---------- */
+(function init(){
+  let s = decode(location.hash.slice(1));
+  if (!s) { try { s = decode(localStorage.getItem('emblem-current')); } catch (e) {} }
+  if (s) Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent});
+  renderSaved();
+  render();
+  setTimeout(() => { for (const tag of Object.keys(META)) loadVersion(tag).catch(() => {}); }, 1500);
+})();
+</script>

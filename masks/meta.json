@@ -1,0 +1,50 @@
+{
+ "plain": {
+  "w": 2475,
+  "h": 2475,
+  "layers": [
+   "bg",
+   "line",
+   "gold",
+   "cream",
+   "gem_top",
+   "gem_left",
+   "gem_mid",
+   "gem_right",
+   "wings"
+  ]
+ },
+ "ribbon": {
+  "w": 2475,
+  "h": 2475,
+  "layers": [
+   "bg",
+   "line",
+   "gold",
+   "cream",
+   "gem_top",
+   "gem_left",
+   "gem_mid",
+   "gem_right",
+   "wings",
+   "ribbon"
+  ]
+ },
+ "text": {
+  "w": 2475,
+  "h": 2475,
+  "layers": [
+   "bg",
+   "line",
+   "gold",
+   "cream",
+   "text",
+   "gem_top",
+   "gem_left",
+   "gem_mid",
+   "gem_right",
+   "wings",
+   "ribbon"
+  ]
+ }
+}
