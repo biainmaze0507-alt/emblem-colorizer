@@ -20,7 +20,3 @@
 ..\.venv\Scripts\python.exe -I build_site.py
 ```
 
-## 시안 코드
-`버전.금속.날개바깥.날개안쪽.리본.배경.글씨.보석위치[.t]` 형식. 예:
-`text.E0C7A9.DE80A6.F4EEE8.DE80A6.222A39.FFFFFF.mid`
-URL 뒤에 `#코드` 를 붙이면 그 상태로 열림.

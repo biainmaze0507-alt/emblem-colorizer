@@ -288,15 +288,10 @@ xPane.innerHTML = `
     <div class="btns">
       <select id="size" aria-label="저장 크기"><option value="2475">2475px (원본)</option><option value="1024">1024px</option><option value="512">512px</option><option value="256">256px</option></select>
       <button class="b primary" type="button" id="download">PNG 저장</button>
-      <button class="b" type="button" id="reset">원본 색으로</button>
     </div><div class="msg" id="dlMsg"></div></div>
   <div class="block"><h2>시안 보관<small>이 브라우저에만 남습니다</small></h2>
     <div class="btns"><button class="b" type="button" id="save">현재 시안 저장</button></div>
-    <div class="saved" id="saved" aria-label="저장한 시안"></div></div>
-  <div class="block"><h2>시안 코드<small>운영진끼리 공유할 때</small></h2>
-    <div class="code"><input type="text" id="codeOut" readonly aria-label="현재 시안 코드"><button class="b" type="button" id="copyCode">복사</button></div>
-    <div class="code"><input type="text" id="codeIn" placeholder="받은 코드 붙여넣기" aria-label="시안 코드 입력"><button class="b" type="button" id="loadCode">불러오기</button></div>
-    <div class="msg" id="codeMsg"></div></div>`;
+    <div class="saved" id="saved" aria-label="저장한 시안"></div></div>`;
 contentEl.appendChild(xPane);
 
 function syncUI(){
@@ -315,24 +310,9 @@ function syncUI(){
   document.querySelectorAll('#versionSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.version)));
   document.querySelectorAll('input[name^="midGem-"]').forEach(r => r.checked = r.value === state.midGem);
   document.getElementById('transparent').checked = state.transparent;
-  document.getElementById('codeOut').value = code;
   document.querySelectorAll('#saved img').forEach(im => im.classList.toggle('cur', im.dataset.code === code));
   try { localStorage.setItem('emblem-current', code); } catch (e) {}
 }
-
-document.getElementById('reset').addEventListener('click', () => { state.colors = {...DEFAULTS}; state.midGem = 'mid'; state.transparent = false; render(); });
-
-const codeMsg = document.getElementById('codeMsg');
-document.getElementById('copyCode').addEventListener('click', async () => {
-  const el = document.getElementById('codeOut');
-  try { await navigator.clipboard.writeText(el.value); codeMsg.textContent = '복사했습니다.'; }
-  catch (e) { el.focus(); el.select(); codeMsg.textContent = '자동 복사가 막혀 있어 선택해 두었습니다. 길게 눌러 복사하세요.'; }
-});
-document.getElementById('loadCode').addEventListener('click', () => {
-  const s = decode(document.getElementById('codeIn').value);
-  if (!s) { codeMsg.textContent = '코드 형식이 맞지 않습니다.'; return; }
-  apply(s); codeMsg.textContent = '불러왔습니다.';
-});
 
 /* ---------- saved variants ---------- */
 function readSaved(){ try { return JSON.parse(localStorage.getItem('emblem-variants') || '[]'); } catch (e) { return []; } }
@@ -343,7 +323,7 @@ function renderSaved(){
     const f = document.createElement('figure');
     f.innerHTML = `<img alt="저장한 시안 ${i + 1}" title="불러오기"><button class="x" type="button" aria-label="삭제">×</button><figcaption></figcaption>`;
     const im = f.querySelector('img'); im.src = it.thumb; im.dataset.code = it.code;
-    f.querySelector('figcaption').textContent = VERSION_LABEL[it.code.split('.')[0]] + ' · ' + it.code.split('.')[2];
+    f.querySelector('figcaption').textContent = VERSION_LABEL[it.code.split('.')[0]];
     im.addEventListener('click', () => { const s = decode(it.code); if (s) apply(s); });
     f.querySelector('.x').addEventListener('click', () => { const l = readSaved(); l.splice(i, 1); writeSaved(l); renderSaved(); });
     box.appendChild(f);
@@ -381,11 +361,17 @@ dlBtn.addEventListener('click', async () => {
     const size = +document.getElementById('size').value;
     const out = size === FULL ? full : downscale(full, size);
     const blob = await new Promise(r => out.toBlob(r, 'image/png'));
-    const filename = 'emblem_' + encode().replace(/\./g, '_') + '_' + size + 'px.png';
+    const filename = 'emblem-' + state.version + '-' + size + 'px.png';
     const dl = await downloadsNs;
     if (dl){
-      try { await dl.save({filename, data: blob}); dlMsg.textContent = '저장했습니다: ' + filename; }
-      catch (e) { dlMsg.textContent = e && e.code === 'declined' ? '저장을 취소했습니다.' : '이 화면에서는 저장할 수 없습니다 (' + (e && e.code || '오류') + ').'; }
+      try {
+        const buf = await blob.arrayBuffer();
+        await dl.save({filename, data: buf});
+        dlMsg.textContent = '저장했습니다: ' + filename;
+      } catch (e) {
+        dlMsg.textContent = e && e.code === 'declined' ? '저장을 취소했습니다.'
+          : '저장이 거부되었습니다 (' + ((e && (e.code + ': ' + e.message)) || '오류') + '). HTML 파일이나 GitHub Pages 주소에서는 바로 저장됩니다.';
+      }
     } else if (inArtifact){
       dlMsg.textContent = '이 화면에서는 파일 저장이 막혀 있습니다. GitHub Pages 주소나 HTML 파일로 열어서 저장하세요.';
     } else {
