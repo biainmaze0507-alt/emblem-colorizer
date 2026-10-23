@@ -243,9 +243,14 @@ for (const [id, label] of TABS){
 const vPane = document.createElement('section'); vPane.className = 'pane'; vPane.id = 'pane-version';
 vPane.innerHTML = `<h2>버전</h2><div class="seg" id="versionSeg">
   <button type="button" data-v="plain">리본 없음</button><button type="button" data-v="ribbon">리본</button><button type="button" data-v="text">리본 + 글씨</button></div>
-  <p class="hint">버전마다 같은 색 설정이 적용됩니다.</p>`;
+  <p class="hint">버전마다 같은 색 설정이 적용됩니다.</p>
+  <div class="opt"><span class="lead">왕관 가운데 보석 위치</span>
+    <label><input type="radio" name="midGem" value="mid"> 띠 가운데</label>
+    <label><input type="radio" name="midGem" value="top"> 꼭대기</label></div>
+  <p class="hint">여기서 고른 보석이 "리본" 색을, 나머지 3개가 "날개 바깥" 색을 씁니다.</p>`;
 contentEl.appendChild(vPane);
 vPane.querySelector('#versionSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.version = b.dataset.v; render(); } });
+vPane.querySelector('.opt').addEventListener('change', e => { state.midGem = e.target.value; render(); });
 
 /* one shared picker, moved into whichever colour pane is open */
 const pickerEl = document.createElement('div'); pickerEl.className = 'picker';
@@ -295,14 +300,6 @@ hexEl.addEventListener('blur', () => { hexEl.value = state.colors[picker.key]; h
 for (const [key, label, note] of GROUPS){
   const pane = document.createElement('section'); pane.className = 'pane'; pane.id = 'pane-' + key;
   pane.innerHTML = `<h2>${label}<small>${note}</small></h2><div id="slot-${key}"></div>`;
-  if (key === 'ribbon' || key === 'outer'){
-    const o = document.createElement('div'); o.className = 'opt';
-    o.innerHTML = `<span class="lead">왕관 "가운데 보석"은</span>
-      <label><input type="radio" name="midGem-${key}" value="mid"> 띠 가운데</label>
-      <label><input type="radio" name="midGem-${key}" value="top"> 꼭대기</label>`;
-    o.addEventListener('change', e => { state.midGem = e.target.value; render(); });
-    pane.appendChild(o);
-  }
   if (key === 'bg'){
     const o = document.createElement('div'); o.className = 'opt';
     o.innerHTML = `<label><input type="checkbox" id="transparent"> 배경 투명으로 저장 (나비 윤곽선은 이 색 유지)</label>`;
@@ -337,7 +334,7 @@ function syncUI(){
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);
   document.querySelectorAll('#versionSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.version)));
-  document.querySelectorAll('input[name^="midGem-"]').forEach(r => r.checked = r.value === state.midGem);
+  document.querySelectorAll('input[name="midGem"]').forEach(r => r.checked = r.value === state.midGem);
   document.getElementById('transparent').checked = state.transparent;
   document.querySelectorAll('#saved img').forEach(im => im.classList.toggle('cur', im.dataset.code === code));
   try { localStorage.setItem('emblem-current', code); } catch (e) {}
