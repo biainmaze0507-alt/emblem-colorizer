@@ -3,8 +3,8 @@
   "w": 2475,
   "h": 2475,
   "layers": [
-   "bg",
    "line",
+   "bg",
    "gold",
    "cream",
    "gem_top",
@@ -18,8 +18,8 @@
   "w": 2475,
   "h": 2475,
   "layers": [
-   "bg",
    "line",
+   "bg",
    "gold",
    "cream",
    "gem_top",
@@ -34,8 +34,8 @@
   "w": 2475,
   "h": 2475,
   "layers": [
-   "bg",
    "line",
+   "bg",
    "gold",
    "cream",
    "text",

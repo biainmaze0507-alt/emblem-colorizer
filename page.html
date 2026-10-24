@@ -39,7 +39,7 @@ h1{font-size:15px;font-weight:700;margin:0;letter-spacing:.02em}
 .preview canvas{display:block;width:100%;height:100%;max-width:100%}
 .preview .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);background:var(--panel2);font-size:13px}
 .tabs{display:flex;gap:0;margin-top:6px;padding-bottom:0}
-.tab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 8px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:11px;letter-spacing:-.02em;cursor:pointer;white-space:nowrap}
+.tab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 8px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:11px;letter-spacing:-.03em;cursor:pointer;white-space:nowrap}
 @media (min-width:480px){.tab{font-size:12px;letter-spacing:0}}
 .tab .dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--fg)}
 .tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--ink);font-weight:700}
@@ -63,14 +63,24 @@ h1{font-size:15px;font-weight:700;margin:0;letter-spacing:.02em}
 .hue .hhandle{position:absolute;top:50%;width:14px;height:36px;margin:-18px 0 0 -7px;border-radius:7px;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 1px 4px rgba(0,0,0,.4);pointer-events:none}
 .custom{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
 .custom .cur{width:44px;height:36px;border:1px solid var(--line);border-radius:8px}
+.custom .cur.dim{opacity:.35}
+.tchip{width:56px;height:36px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12px;font-weight:700;color:#111;cursor:pointer;
+  background-color:#d9d9d9;background-image:linear-gradient(45deg,#a8a8a8 25%,transparent 25%),linear-gradient(-45deg,#a8a8a8 25%,transparent 25%),
+  linear-gradient(45deg,transparent 75%,#a8a8a8 75%),linear-gradient(-45deg,transparent 75%,#a8a8a8 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;
+  text-shadow:0 0 3px #fff,0 0 3px #fff}
+.tchip[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.tab .dot.tdot{background-color:#d9d9d9!important;background-image:linear-gradient(45deg,#a8a8a8 25%,transparent 25%),linear-gradient(-45deg,#a8a8a8 25%,transparent 25%),
+  linear-gradient(45deg,transparent 75%,#a8a8a8 75%),linear-gradient(-45deg,transparent 75%,#a8a8a8 75%);background-size:8px 8px;background-position:0 0,0 4px,4px -4px,-4px 0}
 .hex{width:104px;font-family:var(--mono);font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);text-transform:uppercase}
 .hex.bad{border-color:var(--fg);border-style:dashed}
 .opt{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);max-width:640px}
 .opt label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
 .opt .lead{color:var(--muted)}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:640px}
-.seg button{padding:12px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;cursor:pointer}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;max-width:640px}
+.seg button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;cursor:pointer;white-space:nowrap}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
+.seg canvas.crown{width:52px;height:30px;flex:none}
+.vgroup + .vgroup{margin-top:12px}
 .btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 button.b{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-weight:500;cursor:pointer}
 button.b.primary{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
@@ -125,7 +135,8 @@ const GROUPS = [
   ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
   ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
-  ['bg',     '배경',      '나비 윤곽선도 이 색을 씁니다',    '#222A39'],
+  ['bg',     '배경',      '투명 칩을 고르면 배경 없이 저장',  '#222A39'],
+  ['line',   '윤곽선',    '나비 윤곽선 · 왕관 보석 테두리',   '#222A39'],
   ['text',   '글씨',      '리본 + 글씨 버전에만 보입니다',   '#FFFFFF'],
 ];
 const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
@@ -150,7 +161,9 @@ function hsvToHex(h, s, v){
   return '#' + [r, g, b].map(n => Math.round((n + m) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
-const state = {version:'text', colors:{...DEFAULTS}, midGem:'mid', transparent:false, tab:'version'};
+const state = {version:'text', colors:{...DEFAULTS}, midGem:'mid', transparent:false, frame:false, tab:'version'};
+/* rounded-square frame from slide 2 of the deck, as fractions of the canvas side; emb = where the emblem sits inside it */
+const FRAME = {inset: 24.5 / 540, size: 490.9 / 540, lw: 6 / 540, r: 0.29065 * 490.9 / 540, emb: {x: 52.2 / 540, y: 52.2 / 540, s: 435.7 / 540}};
 
 function groupOf(layer){
   switch(layer){
@@ -161,6 +174,7 @@ function groupOf(layer){
     case 'gem_top': return state.midGem === 'top' ? 'ribbon' : 'outer';
     case 'ribbon': return 'ribbon';
     case 'text': return 'text';
+    case 'line': return 'line';
     default: return 'bg';
   }
 }
@@ -201,6 +215,19 @@ function composite(target, masks, w){
   }
   t.globalCompositeOperation = 'source-over';
 }
+const scratch2ByW = {};
+function scratch2(w){ if (!scratch2ByW[w]) { const c = document.createElement('canvas'); c.width = c.height = w; scratch2ByW[w] = c; } return scratch2ByW[w]; }
+/* full scene: the emblem alone, or the emblem scaled into the rounded frame */
+function renderScene(target, masks, w){
+  if (!state.frame) { composite(target, masks, w); return; }
+  const emb = scratch2(w); composite(emb, masks, w);
+  const t = target.getContext('2d'); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, w, w);
+  if (!state.transparent) { t.fillStyle = state.colors.bg; t.fillRect(0, 0, w, w); }
+  t.imageSmoothingQuality = 'high';
+  t.drawImage(emb, 0, 0, w, w, FRAME.emb.x * w, FRAME.emb.y * w, FRAME.emb.s * w, FRAME.emb.s * w);
+  const i = FRAME.inset * w, s = FRAME.size * w, r = FRAME.r * w;
+  t.beginPath(); t.roundRect(i, i, s, s, r); t.lineWidth = FRAME.lw * w; t.strokeStyle = state.colors.metal; t.stroke();
+}
 
 const preview = document.getElementById('preview');
 let renderQueued = false;
@@ -214,30 +241,33 @@ function render(){
       try { await loadVersion(state.version); }
       catch (e) { loading.textContent = '이미지를 불러오지 못했습니다 (' + e.message + ')'; return; }
     }
-    composite(preview, versions[state.version].prev, PREV);
+    renderScene(preview, versions[state.version].prev, PREV);
     loading.hidden = true;
     document.getElementById('previewBox').classList.toggle('checker', state.transparent);
     syncUI();
   });
 }
 
-/* ---------- share code: version.metal.outer.inner.ribbon.bg.text.gem[.t] ---------- */
+/* ---------- state code: version.metal.outer.inner.ribbon.bg.text.line.gem[.t]  (older codes lack .line) ---------- */
 function encode(){
   const c = state.colors;
-  return [state.version, c.metal, c.outer, c.inner, c.ribbon, c.bg, c.text].map(x => x.replace('#', '')).join('.')
-    + '.' + state.midGem + (state.transparent ? '.t' : '');
+  return [state.version, c.metal, c.outer, c.inner, c.ribbon, c.bg, c.text, c.line].map(x => x.replace('#', '')).join('.')
+    + '.' + state.midGem + (state.transparent ? '.t' : '') + (state.frame ? '.f' : '');
 }
 function decode(str){
   const p = String(str || '').trim().replace(/^#/, '').split('.');
   if (!META[p[0]] || p.length < 7) return null;
-  const hex = p.slice(1, 7); if (!hex.every(h => /^[0-9a-fA-F]{6}$/.test(h))) return null;
-  const [metal, outer, inner, ribbon, bg, text] = hex.map(h => '#' + h.toUpperCase());
-  return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text}, midGem: p[7] === 'top' ? 'top' : 'mid', transparent: p.includes('t')};
+  const isHex = h => /^[0-9a-fA-F]{6}$/.test(h);
+  const n = isHex(p[7] || '') ? 7 : 6;
+  const hex = p.slice(1, 1 + n); if (!hex.every(isHex)) return null;
+  const [metal, outer, inner, ribbon, bg, text, line] = hex.map(h => '#' + h.toUpperCase());
+  return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text, line: line || bg},
+    midGem: p[1 + n] === 'top' ? 'top' : 'mid', transparent: p.slice(1 + n).includes('t'), frame: p.slice(1 + n).includes('f')};
 }
-function apply(s){ Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent}); render(); }
+function apply(s){ Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame}); render(); }
 
 /* ---------- tabs ---------- */
-const TAB_LABEL = {outer:'날개 밖', inner:'날개 안'};   // shorter tab labels so all eight fit one row on a phone
+const TAB_LABEL = {outer:'날개밖', inner:'날개안', line:'윤곽'};   // shorter tab labels so all nine fit one row on a phone
 const TABS = [['version', '버전'], ...GROUPS.map(g => [g[0], TAB_LABEL[g[0]] || g[1]]), ['export', '저장']];
 const tabsEl = document.getElementById('tabs'), contentEl = document.getElementById('content');
 for (const [id, label] of TABS){
@@ -250,16 +280,43 @@ for (const [id, label] of TABS){
 
 /* version pane */
 const vPane = document.createElement('section'); vPane.className = 'pane'; vPane.id = 'pane-version';
-vPane.innerHTML = `<h2>버전</h2><div class="seg" id="versionSeg">
-  <button type="button" data-v="plain">리본 없음</button><button type="button" data-v="ribbon">리본</button><button type="button" data-v="text">리본 + 글씨</button></div>
-  <p class="hint">버전마다 같은 색 설정이 적용됩니다.</p>
-  <div class="opt"><span class="lead">왕관 가운데 보석 위치</span>
-    <label><input type="radio" name="midGem" value="mid"> 띠 가운데</label>
-    <label><input type="radio" name="midGem" value="top"> 꼭대기</label></div>
-  <p class="hint">여기서 고른 보석이 "리본" 색을, 나머지 3개가 "날개 바깥" 색을 씁니다.</p>`;
+vPane.innerHTML = `
+  <div class="vgroup"><h2>버전</h2><div class="seg" id="versionSeg">
+    <button type="button" data-v="plain">리본 없음</button><button type="button" data-v="ribbon">리본</button><button type="button" data-v="text">리본 + 글씨</button></div></div>
+  <div class="vgroup"><h2>왕관 가운데 보석 위치<small>리본 색과 통일</small></h2><div class="seg" id="gemSeg">
+    <button type="button" data-g="mid"><canvas class="crown" width="104" height="60" data-g="mid"></canvas>띠 가운데</button>
+    <button type="button" data-g="top"><canvas class="crown" width="104" height="60" data-g="top"></canvas>꼭대기</button></div></div>
+  <div class="vgroup"><h2>프레임</h2><div class="seg" id="frameSeg">
+    <button type="button" data-f="1">켜기</button><button type="button" data-f="0">끄기</button></div></div>`;
 contentEl.appendChild(vPane);
 vPane.querySelector('#versionSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.version = b.dataset.v; render(); } });
-vPane.querySelector('.opt').addEventListener('change', e => { state.midGem = e.target.value; render(); });
+vPane.querySelector('#gemSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.midGem = b.dataset.g; render(); } });
+vPane.querySelector('#frameSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.frame = b.dataset.f === '1'; render(); } });
+
+/* small crown icons: the gem that follows the ribbon colour is highlighted */
+const CROWN = {x: 1030, y: 625, w: 410, h: 265};           // crown bounding box in 2475px source coordinates
+function drawCrownIcons(){
+  const v = versions[state.version]; if (!v) return;
+  const sx = CROWN.x * PREV / FULL, sy = CROWN.y * PREV / FULL, sw = CROWN.w * PREV / FULL, shh = CROWN.h * PREV / FULL;
+  document.querySelectorAll('canvas.crown').forEach(c => {
+    const hi = c.dataset.g, ctx = c.getContext('2d'), W = c.width, H = c.height;
+    const scale = Math.min(W / sw, H / shh), dw = sw * scale, dh = shh * scale, dx = (W - dw) / 2, dy = (H - dh) / 2;
+    ctx.clearRect(0, 0, W, H);
+    const s = scratch(PREV).getContext('2d');
+    const pressed = c.closest('button').getAttribute('aria-pressed') === 'true';
+    const paint = (name, color) => {
+      s.globalCompositeOperation = 'source-over'; s.clearRect(sx, sy, sw, shh); s.fillStyle = color; s.fillRect(sx, sy, sw, shh);
+      s.globalCompositeOperation = 'destination-in'; s.drawImage(v.prev[name], 0, 0);
+      ctx.drawImage(scratch(PREV), sx, sy, sw, shh, dx, dy, dw, dh);
+    };
+    const base = pressed ? 'rgba(255,255,255,.85)' : 'rgba(128,128,128,.55)';
+    paint('gold', base); paint('line', pressed ? '#444' : '#000');
+    for (const g of ['gem_top', 'gem_left', 'gem_mid', 'gem_right']){
+      const isHi = (hi === 'mid' && g === 'gem_mid') || (hi === 'top' && g === 'gem_top');
+      paint(g, isHi ? state.colors.ribbon : base);
+    }
+  });
+}
 
 /* one shared picker, moved into whichever colour pane is open */
 const pickerEl = document.createElement('div'); pickerEl.className = 'picker';
@@ -268,10 +325,12 @@ pickerEl.innerHTML = `
   <div class="hue" id="hue" aria-label="색상 선택"><div class="hhandle" id="hueH"></div></div>
   <div class="custom"><span class="cur" id="cur"></span>
     <input type="text" class="hex" id="hex" maxlength="7" spellcheck="false" aria-label="16진수 색 코드">
+    <button type="button" class="tchip" id="tchip" title="배경 투명" aria-pressed="false" hidden>투명</button>
     <span class="hint" style="margin:0">가로: 채도 · 세로: 명도 · 아래 바: 색상</span></div>`;
 const picker = {key: null, h: 0, s: 0, v: 0};
 const svEl = pickerEl.querySelector('#sv'), svH = pickerEl.querySelector('#svH'), hueEl = pickerEl.querySelector('#hue'), hueH = pickerEl.querySelector('#hueH');
-const hexEl = pickerEl.querySelector('#hex'), curEl = pickerEl.querySelector('#cur');
+const hexEl = pickerEl.querySelector('#hex'), curEl = pickerEl.querySelector('#cur'), tchip = pickerEl.querySelector('#tchip');
+tchip.addEventListener('click', () => { state.transparent = !state.transparent; render(); });
 function openPicker(key){
   const hex = state.colors[key];
   if (picker.key !== key || hsvToHex(picker.h, picker.s, picker.v) !== hex) Object.assign(picker, hexToHsv(hex));
@@ -288,6 +347,9 @@ function drawPicker(){
   hueH.style.left = (picker.h / 360 * 100) + '%'; hueH.style.background = hueHex;
   curEl.style.background = state.colors[picker.key];
   if (document.activeElement !== hexEl) hexEl.value = state.colors[picker.key];
+  tchip.hidden = picker.key !== 'bg';
+  tchip.setAttribute('aria-pressed', String(picker.key === 'bg' && state.transparent));
+  curEl.classList.toggle('dim', picker.key === 'bg' && state.transparent);
 }
 function drag(el, onPoint){
   const handle = e => {
@@ -309,15 +371,9 @@ hexEl.addEventListener('blur', () => { hexEl.value = state.colors[picker.key]; h
 for (const [key, label, note] of GROUPS){
   const pane = document.createElement('section'); pane.className = 'pane'; pane.id = 'pane-' + key;
   pane.innerHTML = `<h2>${label}<small>${note}</small></h2><div id="slot-${key}"></div>`;
-  if (key === 'bg'){
-    const o = document.createElement('div'); o.className = 'opt';
-    o.innerHTML = `<label><input type="checkbox" id="transparent"> 배경 투명으로 저장 (나비 윤곽선은 이 색 유지)</label>`;
-    o.querySelector('input').addEventListener('change', e => { state.transparent = e.target.checked; render(); });
-    pane.appendChild(o);
-  }
   contentEl.appendChild(pane);
 }
-function setColor(key, v){ state.colors[key] = v.toUpperCase(); render(); }
+function setColor(key, v){ state.colors[key] = v.toUpperCase(); if (key === 'bg') state.transparent = false; render(); }
 
 /* export pane */
 const xPane = document.createElement('section'); xPane.className = 'pane'; xPane.id = 'pane-export';
@@ -343,8 +399,10 @@ function syncUI(){
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);
   document.querySelectorAll('#versionSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.version)));
-  document.querySelectorAll('input[name="midGem"]').forEach(r => r.checked = r.value === state.midGem);
-  document.getElementById('transparent').checked = state.transparent;
+  document.querySelectorAll('#gemSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === state.midGem)));
+  document.querySelectorAll('#frameSeg button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.f === '1') === state.frame)));
+  drawCrownIcons();
+  const bgDot = document.getElementById('dot-bg'); bgDot.classList.toggle('tdot', state.transparent); if (state.transparent) bgDot.style.background = '';
   document.querySelectorAll('#saved img').forEach(im => im.classList.toggle('cur', im.dataset.code === code));
   try { localStorage.setItem('emblem-current', code); } catch (e) {}
 }
@@ -392,11 +450,11 @@ dlBtn.addEventListener('click', async () => {
   try {
     const v = await loadVersion(state.version);
     const full = document.createElement('canvas'); full.width = full.height = FULL;
-    composite(full, v.full, FULL);
+    renderScene(full, v.full, FULL);
     const size = +document.getElementById('size').value;
     const out = size === FULL ? full : downscale(full, size);
     const blob = await new Promise(r => out.toBlob(r, 'image/png'));
-    const filename = 'emblem-' + state.version + '-' + size + 'px.png';
+    const filename = 'emblem-' + state.version + (state.frame ? '-frame' : '') + '-' + size + 'px.png';
     const dl = await downloadsNs;
     if (dl){
       try {
@@ -453,7 +511,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPreview
   fitPreview();
   let s = decode(location.hash.slice(1));
   if (!s) { try { s = decode(localStorage.getItem('emblem-current')); } catch (e) {} }
-  if (s) Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent});
+  if (s) Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame});
   renderSaved();
   render();
   setTimeout(() => { for (const tag of Object.keys(META)) loadVersion(tag).catch(() => {}); }, 1500);

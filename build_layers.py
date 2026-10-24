@@ -57,7 +57,7 @@ def split_components(weight, hard=0.5):
     return grown, n
 
 
-def build(src, tag, outdir):
+def build(src, tag, outdir, lineref=None):
     img = np.array(Image.open(src).convert('RGB'))
     H, Wd, _ = img.shape
     W, res = unmix(img)
@@ -66,11 +66,18 @@ def build(src, tag, outdir):
 
     layers = {}
     # --- navy: background field vs. thin dark lines inside the art
-    navy_hard = w['navy'] > 0.5
-    field = ndi.binary_opening(navy_hard, structure=np.ones((3, 3)), iterations=9)
-    field = ndi.binary_dilation(field, structure=np.ones((3, 3)), iterations=1)
-    layers['bg']   = np.where(field, w['navy'], 0)
-    layers['line'] = np.where(field, 0, w['navy'])
+    if lineref:
+        # reference render of only the navy-outlined shapes (fills off) on white: dark = outline
+        ref = np.array(Image.open(lineref).convert('L')) < 160
+        ref = ndi.binary_dilation(ref, structure=np.ones((3, 3)), iterations=1)
+        layers['line'] = np.where(ref, w['navy'], 0)
+        layers['bg']   = np.where(ref, 0, w['navy'])
+    else:
+        navy_hard = w['navy'] > 0.5
+        field = ndi.binary_opening(navy_hard, structure=np.ones((3, 3)), iterations=13)
+        field = ndi.binary_dilation(field, structure=np.ones((3, 3)), iterations=1)
+        layers['bg']   = np.where(field, w['navy'], 0)
+        layers['line'] = np.where(field, 0, w['navy'])
 
     layers['gold']  = w['gold']
     layers['cream'] = w['cream']
@@ -120,7 +127,10 @@ def build(src, tag, outdir):
 if __name__ == '__main__':
     outdir = sys.argv[1]
     meta = {}
+    refs = {'plain': None, 'ribbon': None, 'text': None}
+    if len(sys.argv) > 6:            # optional: lineref_plain lineref_ribbon (ribbon ref also serves the text version)
+        refs = {'plain': sys.argv[5], 'ribbon': sys.argv[6], 'text': sys.argv[6]}
     for tag, src in [('plain', sys.argv[2]), ('ribbon', sys.argv[3]), ('text', sys.argv[4])]:
-        meta[tag] = build(src, tag, outdir)
+        meta[tag] = build(src, tag, outdir, refs[tag])
     json.dump(meta, open(f'{outdir}/meta.json', 'w'), indent=1)
     print(json.dumps(meta))
