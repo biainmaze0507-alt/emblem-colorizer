@@ -1,6 +1,7 @@
 <title>길드 엠블럼 색상 시안</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style id="erinfont">/*__ERINLANG_FONT__*/</style>
 <style>
 /* layout (Picrew style): preview pinned on top, category tabs under it, swatch grid scrolls below.
    Desktop: preview left, tabs + swatches right. UI is achromatic so only the emblem carries colour. */
@@ -81,6 +82,8 @@ h1{font-size:15px;font-weight:700;margin:0;letter-spacing:.02em}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
 .seg canvas.crown{width:52px;height:30px;flex:none}
 .vgroup + .vgroup{margin-top:12px}
+.tin{display:block;width:100%;max-width:640px;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-size:16px}
+.tin::placeholder{color:var(--muted)}
 .btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 button.b{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;font-weight:500;cursor:pointer}
 button.b.primary{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);font-weight:700}
@@ -125,21 +128,22 @@ select,input[type=text]{font:inherit;padding:9px 10px;border:1px solid var(--lin
 
 <script>
 const META = {
-  plain:  ['bg','line','gold','cream','gem_top','gem_left','gem_mid','gem_right','wings'],
   ribbon: ['bg','line','gold','cream','gem_top','gem_left','gem_mid','gem_right','wings','ribbon'],
-  text:   ['bg','line','gold','cream','text','gem_top','gem_left','gem_mid','gem_right','wings','ribbon'],
 };
 const FULL = 2475, PREV = 1000;
+/* ribbon lettering (ErinLang font, typed live): 24pt in the deck = 110px at 2475px; glyph centres follow the ribbon's shallow sag */
+const TEXT = {size: 110, cx: 1233, cy: 2004, R: 4118, maxW: 1150, family: 'ErinLang'};
+const fontReady = (document.fonts && document.fonts.load) ? document.fonts.load('110px ' + TEXT.family).catch(() => {}) : Promise.resolve();
 const GROUPS = [
   ['metal',  '금속',      '테두리 · 별 · 왕관 · 나비 몸통',   '#E0C7A9'],
   ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
   ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
   ['bg',     '배경',      '투명 칩을 고르면 배경 없이 저장',  '#222A39'],
-  ['text',   '글씨',      '리본 + 글씨 버전에만 보입니다',   '#FFFFFF'],
+  ['text',   '글씨',      '리본 위 글씨 색',   '#FFFFFF'],
 ];
 const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
-const VERSION_LABEL = {plain:'리본 없음', ribbon:'리본', text:'리본 + 글씨'};
+const DEFAULT_TEXT = '마비팟';
 
 /* colour maths */
 function hexToHsv(hex){
@@ -160,7 +164,7 @@ function hsvToHex(h, s, v){
   return '#' + [r, g, b].map(n => Math.round((n + m) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
-const state = {version:'text', colors:{...DEFAULTS}, midGem:'mid', transparent:false, frame:false, tab:'version'};
+const state = {version:'ribbon', text:DEFAULT_TEXT, colors:{...DEFAULTS}, midGem:'mid', transparent:false, frame:false, tab:'version'};
 /* rounded-square frame from slide 2 of the deck, as fractions of the canvas side; emb = where the emblem sits inside it */
 const FRAME = {inset: 24.5 / 540, size: 490.9 / 540, lw: 6 / 540, r: 0.29065 * 490.9 / 540, emb: {x: 52.2 / 540, y: 52.2 / 540, s: 435.7 / 540},
   // thin inner line, proportioned like the shield's outer/inner strokes (about 4.4 : 1, a clear gap of roughly one outer width)
@@ -214,6 +218,24 @@ function composite(target, masks, w){
     t.globalCompositeOperation = 'lighter'; t.drawImage(scratch(w), 0, 0);
   }
   t.globalCompositeOperation = 'source-over';
+  drawText(t, w);
+}
+/* lettering along the ribbon: each character sits on a very large circle (centre far above), rotated to the tangent */
+function drawText(ctx, w){
+  const text = (state.text || '').trim(); if (!text) return;
+  const k = w / FULL; let size = TEXT.size * k;
+  ctx.save(); ctx.fillStyle = state.colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = size + 'px ' + TEXT.family;
+  let total = ctx.measureText(text).width;
+  if (total > TEXT.maxW * k) { size *= TEXT.maxW * k / total; ctx.font = size + 'px ' + TEXT.family; total = ctx.measureText(text).width; }
+  const R = TEXT.R * k, cx = TEXT.cx * k, cy = (TEXT.cy - TEXT.R) * k;
+  let pos = -total / 2;
+  for (const ch of Array.from(text)){
+    const cw = ctx.measureText(ch).width, th = (pos + cw / 2) / R;
+    ctx.save(); ctx.translate(cx + R * Math.sin(th), cy + R * Math.cos(th)); ctx.rotate(-th); ctx.fillText(ch, 0, 0); ctx.restore();
+    pos += cw;
+  }
+  ctx.restore();
 }
 const scratch2ByW = {};
 function scratch2(w){ if (!scratch2ByW[w]) { const c = document.createElement('canvas'); c.width = c.height = w; scratch2ByW[w] = c; } return scratch2ByW[w]; }
@@ -239,6 +261,7 @@ function render(){
   requestAnimationFrame(async () => {
     renderQueued = false;
     const loading = document.getElementById('loading');
+    await fontReady;
     if (!versions[state.version]) {
       loading.hidden = false;
       try { await loadVersion(state.version); }
@@ -259,7 +282,8 @@ function encode(){
 }
 function decode(str){
   const p = String(str || '').trim().replace(/^#/, '').split('.');
-  if (!META[p[0]] || p.length < 7) return null;
+  if (!/^(plain|ribbon|text)$/.test(p[0]) || p.length < 7) return null;
+  p[0] = 'ribbon';                                   // older codes named a version; the ribbon is now always drawn
   const isHex = h => /^[0-9a-fA-F]{6}$/.test(h);
   const n = isHex(p[7] || '') ? 7 : 6;
   const hex = p.slice(1, 1 + n); if (!hex.every(isHex)) return null;
@@ -267,11 +291,11 @@ function decode(str){
   return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text},
     midGem: p[1 + n] === 'top' ? 'top' : 'mid', transparent: p.slice(1 + n).includes('t'), frame: p.slice(1 + n).includes('f')};
 }
-function apply(s){ Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame}); render(); }
+function apply(s){ Object.assign(state, {version:'ribbon', colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame}); if (typeof s.text === 'string') state.text = s.text; render(); }
 
 /* ---------- tabs ---------- */
 const TAB_LABEL = {outer:'날개밖', inner:'날개안'};   // shorter tab labels so all tabs fit one row on a phone
-const TABS = [['version', '버전'], ...GROUPS.map(g => [g[0], TAB_LABEL[g[0]] || g[1]]), ['export', '저장']];
+const TABS = [['version', '구성'], ...GROUPS.map(g => [g[0], TAB_LABEL[g[0]] || g[1]]), ['export', '저장']];
 const tabsEl = document.getElementById('tabs'), contentEl = document.getElementById('content');
 for (const [id, label] of TABS){
   const b = document.createElement('button'); b.className = 'tab'; b.type = 'button'; b.role = 'tab'; b.id = 'tab-' + id; b.dataset.tab = id;
@@ -284,15 +308,16 @@ for (const [id, label] of TABS){
 /* version pane */
 const vPane = document.createElement('section'); vPane.className = 'pane'; vPane.id = 'pane-version';
 vPane.innerHTML = `
-  <div class="vgroup"><h2>버전</h2><div class="seg" id="versionSeg">
-    <button type="button" data-v="plain">리본 없음</button><button type="button" data-v="ribbon">리본</button><button type="button" data-v="text">리본 + 글씨</button></div></div>
+  <div class="vgroup"><h2>글씨<small>에린어로 표시됩니다 · 비우면 리본만</small></h2>
+    <input type="text" class="tin" id="textIn" maxlength="16" autocomplete="off" spellcheck="false" placeholder="리본에 들어갈 글씨" aria-label="리본 글씨"></div>
   <div class="vgroup"><h2>왕관 가운데 보석 위치<small>리본 색과 통일</small></h2><div class="seg" id="gemSeg">
     <button type="button" data-g="mid"><canvas class="crown" width="104" height="60" data-g="mid"></canvas>띠 가운데</button>
     <button type="button" data-g="top"><canvas class="crown" width="104" height="60" data-g="top"></canvas>꼭대기</button></div></div>
   <div class="vgroup"><h2>프레임</h2><div class="seg" id="frameSeg">
     <button type="button" data-f="1">켜기</button><button type="button" data-f="0">끄기</button></div></div>`;
 contentEl.appendChild(vPane);
-vPane.querySelector('#versionSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.version = b.dataset.v; render(); } });
+const textIn = vPane.querySelector('#textIn');
+textIn.addEventListener('input', () => { state.text = textIn.value; try { localStorage.setItem('emblem-text', state.text); } catch (e) {} render(); });
 vPane.querySelector('#gemSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.midGem = b.dataset.g; render(); } });
 vPane.querySelector('#frameSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.frame = b.dataset.f === '1'; render(); } });
 
@@ -396,12 +421,12 @@ function syncUI(){
   for (const [key] of GROUPS){
     const dot = document.getElementById('dot-' + key); dot.style.background = state.colors[key]; dot.textContent = '';
   }
-  const textTab = document.getElementById('tab-text'); textTab.disabled = state.version !== 'text';
+  const textTab = document.getElementById('tab-text'); textTab.disabled = !(state.text || '').trim();
   if (textTab.disabled && state.tab === 'text') state.tab = 'ribbon';
+  if (document.activeElement !== textIn && textIn.value !== state.text) textIn.value = state.text;
   if (DEFAULTS[state.tab] !== undefined) openPicker(state.tab);
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);
-  document.querySelectorAll('#versionSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state.version)));
   document.querySelectorAll('#gemSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === state.midGem)));
   document.querySelectorAll('#frameSeg button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.f === '1') === state.frame)));
   drawCrownIcons();
@@ -419,8 +444,8 @@ function renderSaved(){
     const f = document.createElement('figure');
     f.innerHTML = `<img alt="저장한 시안 ${i + 1}" title="불러오기"><button class="x" type="button" aria-label="삭제">×</button><figcaption></figcaption>`;
     const im = f.querySelector('img'); im.src = it.thumb; im.dataset.code = it.code;
-    f.querySelector('figcaption').textContent = VERSION_LABEL[it.code.split('.')[0]];
-    im.addEventListener('click', () => { const s = decode(it.code); if (s) apply(s); });
+    f.querySelector('figcaption').textContent = (it.text || '').trim() || '글씨 없음';
+    im.addEventListener('click', () => { const s = decode(it.code); if (s) { s.text = typeof it.text === 'string' ? it.text : state.text; apply(s); } });
     f.querySelector('.x').addEventListener('click', () => { const l = readSaved(); l.splice(i, 1); writeSaved(l); renderSaved(); });
     box.appendChild(f);
   });
@@ -429,8 +454,8 @@ function renderSaved(){
 document.getElementById('save').addEventListener('click', () => {
   const c = document.createElement('canvas'); c.width = c.height = 192;
   const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(preview, 0, 0, 192, 192);
-  const list = readSaved().filter(it => it.code !== encode());
-  list.push({code: encode(), thumb: c.toDataURL('image/png')});
+  const list = readSaved().filter(it => !(it.code === encode() && (it.text || '') === state.text));
+  list.push({code: encode(), text: state.text, thumb: c.toDataURL('image/png')});
   writeSaved(list); renderSaved();
 });
 
@@ -457,7 +482,7 @@ dlBtn.addEventListener('click', async () => {
     const size = +document.getElementById('size').value;
     const out = size === FULL ? full : downscale(full, size);
     const blob = await new Promise(r => out.toBlob(r, 'image/png'));
-    const filename = 'emblem-' + state.version + (state.frame ? '-frame' : '') + '-' + size + 'px.png';
+    const filename = 'emblem' + (state.frame ? '-frame' : '') + (state.transparent ? '-transparent' : '') + '-' + size + 'px.png';
     const dl = await downloadsNs;
     if (dl){
       try {
@@ -514,9 +539,9 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPreview
   fitPreview();
   let s = decode(location.hash.slice(1));
   if (!s) { try { s = decode(localStorage.getItem('emblem-current')); } catch (e) {} }
-  if (s) Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame});
+  if (s) Object.assign(state, {version:'ribbon', colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame});
+  try { const t = localStorage.getItem('emblem-text'); if (t !== null) state.text = t; } catch (e) {}
   renderSaved();
   render();
-  setTimeout(() => { for (const tag of Object.keys(META)) loadVersion(tag).catch(() => {}); }, 1500);
 })();
 </script>
