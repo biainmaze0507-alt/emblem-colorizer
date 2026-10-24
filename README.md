@@ -4,7 +4,7 @@
 구성 탭에서 리본 글씨(에린어 폰트, 기본 '마비팟'), 왕관 가운데 보석 위치, 2줄 둥근 프레임 켜기/끄기를 고른다. 남색 윤곽선 자리는 색이 아니라 빈 영역(배경색/투명).
 
 ## 파일
-- `index.html` + `masks/` : GitHub Pages 용. 이 두 개를 저장소 루트에 올리면 됨. 에린어 폰트(ErinLang-Direct.ttf)는 index.html 안에 base64로 내장됨.
+- `index.html` + `masks/` + `favicon.ico` + `icons/` : GitHub Pages 용. 저장소 루트에 올리면 됨. 파비콘은 방패 안쪽(왕관+나비)을 기본 프리셋 색으로 잘라 만든 것(icons/ 안에 16~512px, 원본 1120px). 에린어 폰트(ErinLang-Direct.ttf)는 index.html 안에 base64로 내장됨.
 - `artifact.html` : claude.ai 아티팩트에 올리는 본체(스켈레톤 없음, 폰트 내장). build_site.py가 만든다.
 - `emblem-colorizer-standalone.html` : 마스크가 내장된 단일 파일(약 1.7MB). 더블클릭으로 바로 열림.
 - `emblem.svg` : 현재 디자인(리본+글씨, 원본 색) 벡터 파일. 사이트의 투명 저장과 같게, 남색이 보이던 자리(배경·방패 안쪽·윤곽선)는 전부 비어 있음. 글자는 패스로 변환되어 폰트 없이 열림.

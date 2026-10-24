@@ -136,9 +136,9 @@ const TEXT = {size: 110, cx: 1233, cy: 2004, R: 4118, maxW: 1150, family: 'ErinL
 const fontReady = (document.fonts && document.fonts.load) ? document.fonts.load('110px ' + TEXT.family).catch(() => {}) : Promise.resolve();
 const GROUPS = [
   ['metal',  '금속',      '',   '#E0C7A9'],
-  ['outer',  '날개 바깥', '',   '#DE80A6'],
+  ['outer',  '날개 바깥', '',   '#8FAADC'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
-  ['ribbon', '리본',      '',   '#DE80A6'],
+  ['ribbon', '리본',      '',   '#2F5597'],
   ['bg',     '배경',      '',   '#222A39'],
   ['text',   '글씨',      '',   '#FFFFFF'],
 ];
@@ -432,7 +432,7 @@ function syncUI(){
   drawCrownIcons();
   const bgDot = document.getElementById('dot-bg'); bgDot.classList.toggle('tdot', state.transparent); if (state.transparent) bgDot.style.background = '';
   document.querySelectorAll('#saved img').forEach(im => im.classList.toggle('cur', im.dataset.code === code));
-  try { localStorage.setItem('emblem-current', code); } catch (e) {}
+  try { localStorage.setItem('emblem-current-v2', code); } catch (e) {}
 }
 
 /* ---------- saved variants ---------- */
@@ -538,7 +538,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPreview
 (function init(){
   fitPreview();
   let s = decode(location.hash.slice(1));
-  if (!s) { try { s = decode(localStorage.getItem('emblem-current')); } catch (e) {} }
+  if (!s) { try { s = decode(localStorage.getItem('emblem-current-v2')); } catch (e) {} }
   if (s) Object.assign(state, {version:'ribbon', colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame});
   try { const t = localStorage.getItem('emblem-text'); if (t !== null) state.text = t; } catch (e) {}
   renderSaved();
