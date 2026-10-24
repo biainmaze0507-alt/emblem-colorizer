@@ -135,8 +135,8 @@ const GROUPS = [
   ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
   ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
-  ['bg',     '배경',      '투명 칩을 고르면 배경 없이 저장',  '#222A39'],
-  ['line',   '윤곽선',    '나비 윤곽선 · 왕관 보석 테두리',   '#222A39'],
+  ['bg',     '배경',      '투명 칩을 고르면 배경과 윤곽선 자리가 비워진 채 저장',  '#222A39'],
+  ['line',   '윤곽선',    '나비 윤곽선 · 리본 · 왕관 보석 테두리',   '#222A39'],
   ['text',   '글씨',      '리본 + 글씨 버전에만 보입니다',   '#FFFFFF'],
 ];
 const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
@@ -207,7 +207,7 @@ function composite(target, masks, w){
   t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, w, w);
   const s = scratch(w).getContext('2d');
   for (const name of META[state.version]){
-    if (name === 'bg' && state.transparent) continue;
+    if (state.transparent && (name === 'bg' || name === 'line')) continue;   // transparent: background and navy outlines both become empty space
     s.globalCompositeOperation = 'source-over'; s.clearRect(0, 0, w, w);
     s.fillStyle = state.colors[groupOf(name)]; s.fillRect(0, 0, w, w);
     s.globalCompositeOperation = 'destination-in'; s.drawImage(masks[name], 0, 0, w, w);
@@ -310,7 +310,7 @@ function drawCrownIcons(){
       ctx.drawImage(scratch(PREV), sx, sy, sw, shh, dx, dy, dw, dh);
     };
     const base = pressed ? 'rgba(255,255,255,.85)' : 'rgba(128,128,128,.55)';
-    paint('gold', base); paint('line', pressed ? '#444' : '#000');
+    paint('gold', base);                               // outline layer left out: its area stays empty, as in the transparent export
     for (const g of ['gem_top', 'gem_left', 'gem_mid', 'gem_right']){
       const isHi = (hi === 'mid' && g === 'gem_mid') || (hi === 'top' && g === 'gem_top');
       paint(g, isHi ? state.colors.ribbon : base);
@@ -395,6 +395,8 @@ function syncUI(){
   }
   const textTab = document.getElementById('tab-text'); textTab.disabled = state.version !== 'text';
   if (textTab.disabled && state.tab === 'text') state.tab = 'ribbon';
+  const lineTab = document.getElementById('tab-line'); lineTab.disabled = state.transparent;
+  if (lineTab.disabled && state.tab === 'line') state.tab = 'bg';
   if (DEFAULTS[state.tab] !== undefined) openPicker(state.tab);
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);

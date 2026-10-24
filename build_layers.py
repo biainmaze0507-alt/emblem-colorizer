@@ -66,7 +66,11 @@ def build(src, tag, outdir, lineref=None):
 
     layers = {}
     # --- navy: background field vs. thin dark lines inside the art
-    if lineref:
+    if lineref == 'none':
+        # source rendered without any navy outlines: every navy pixel is background
+        layers['line'] = np.zeros_like(w['navy'])
+        layers['bg']   = w['navy']
+    elif lineref:
         # reference render of only the navy-outlined shapes (fills off) on white: dark = outline
         ref = np.array(Image.open(lineref).convert('L')) < 160
         ref = ndi.binary_dilation(ref, structure=np.ones((3, 3)), iterations=1)
@@ -125,12 +129,15 @@ def build(src, tag, outdir, lineref=None):
 
 
 if __name__ == '__main__':
-    outdir = sys.argv[1]
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    suffix = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--suffix=')), '')
+    outdir = args[0]
     meta = {}
     refs = {'plain': None, 'ribbon': None, 'text': None}
-    if len(sys.argv) > 6:            # optional: lineref_plain lineref_ribbon (ribbon ref also serves the text version)
-        refs = {'plain': sys.argv[5], 'ribbon': sys.argv[6], 'text': sys.argv[6]}
-    for tag, src in [('plain', sys.argv[2]), ('ribbon', sys.argv[3]), ('text', sys.argv[4])]:
-        meta[tag] = build(src, tag, outdir, refs[tag])
-    json.dump(meta, open(f'{outdir}/meta.json', 'w'), indent=1)
+    if len(args) > 5:            # optional: lineref_plain lineref_ribbon (ribbon ref also serves the text version); 'none' = no outlines in source
+        refs = {'plain': args[4], 'ribbon': args[5], 'text': args[5]}
+    for tag, src in [('plain', args[1]), ('ribbon', args[2]), ('text', args[3])]:
+        meta[tag + suffix] = build(src, tag + suffix, outdir, refs[tag])
+    mp = f'{outdir}/meta{suffix}.json'
+    json.dump(meta, open(mp, 'w'), indent=1)
     print(json.dumps(meta))
