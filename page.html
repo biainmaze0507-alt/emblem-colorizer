@@ -1,4 +1,4 @@
-<title>길드 엠블럼 색상 시안</title>
+<title>마비팟 엠블럼 놀이터</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style id="erinfont">/*__ERINLANG_FONT__*/</style>
@@ -116,7 +116,7 @@ select,input[type=text]{font:inherit;padding:9px 10px;border:1px solid var(--lin
 
 <div class="app">
   <div class="top">
-    <div class="titlebar"><h1>길드 엠블럼 색상 시안</h1><span>영역별 색 변경 · PNG 저장</span></div>
+    <div class="titlebar"><h1>마비팟 엠블럼 놀이터</h1></div>
     <div class="preview" id="previewBox">
       <canvas id="preview" width="1000" height="1000" aria-label="엠블럼 미리보기"></canvas>
       <div class="loading" id="loading">불러오는 중…</div>
@@ -135,12 +135,12 @@ const FULL = 2475, PREV = 1000;
 const TEXT = {size: 110, cx: 1233, cy: 2004, R: 4118, maxW: 1150, family: 'ErinLang'};
 const fontReady = (document.fonts && document.fonts.load) ? document.fonts.load('110px ' + TEXT.family).catch(() => {}) : Promise.resolve();
 const GROUPS = [
-  ['metal',  '금속',      '테두리 · 별 · 왕관 · 나비 몸통',   '#E0C7A9'],
-  ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
+  ['metal',  '금속',      '',   '#E0C7A9'],
+  ['outer',  '날개 바깥', '',   '#DE80A6'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
-  ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
-  ['bg',     '배경',      '투명 칩을 고르면 배경 없이 저장',  '#222A39'],
-  ['text',   '글씨',      '리본 위 글씨 색',   '#FFFFFF'],
+  ['ribbon', '리본',      '',   '#DE80A6'],
+  ['bg',     '배경',      '',   '#222A39'],
+  ['text',   '글씨',      '',   '#FFFFFF'],
 ];
 const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
 const DEFAULT_TEXT = '마비팟';
@@ -308,7 +308,7 @@ for (const [id, label] of TABS){
 /* version pane */
 const vPane = document.createElement('section'); vPane.className = 'pane'; vPane.id = 'pane-version';
 vPane.innerHTML = `
-  <div class="vgroup"><h2>글씨<small>에린어로 표시됩니다 · 비우면 리본만</small></h2>
+  <div class="vgroup"><h2>글씨</h2>
     <input type="text" class="tin" id="textIn" maxlength="16" autocomplete="off" spellcheck="false" placeholder="리본에 들어갈 글씨" aria-label="리본 글씨"></div>
   <div class="vgroup"><h2>왕관 가운데 보석 위치<small>리본 색과 통일</small></h2><div class="seg" id="gemSeg">
     <button type="button" data-g="mid"><canvas class="crown" width="104" height="60" data-g="mid"></canvas>띠 가운데</button>
@@ -354,7 +354,7 @@ pickerEl.innerHTML = `
   <div class="custom"><span class="cur" id="cur"></span>
     <input type="text" class="hex" id="hex" maxlength="7" spellcheck="false" aria-label="16진수 색 코드">
     <button type="button" class="tchip" id="tchip" title="배경 투명" aria-pressed="false" hidden>투명</button>
-    <span class="hint" style="margin:0">가로: 채도 · 세로: 명도 · 아래 바: 색상</span></div>`;
+    </div>`;
 const picker = {key: null, h: 0, s: 0, v: 0};
 const svEl = pickerEl.querySelector('#sv'), svH = pickerEl.querySelector('#svH'), hueEl = pickerEl.querySelector('#hue'), hueH = pickerEl.querySelector('#hueH');
 const hexEl = pickerEl.querySelector('#hex'), curEl = pickerEl.querySelector('#cur'), tchip = pickerEl.querySelector('#tchip');
@@ -398,7 +398,7 @@ hexEl.addEventListener('blur', () => { hexEl.value = state.colors[picker.key]; h
 /* colour panes */
 for (const [key, label, note] of GROUPS){
   const pane = document.createElement('section'); pane.className = 'pane'; pane.id = 'pane-' + key;
-  pane.innerHTML = `<h2>${label}<small>${note}</small></h2><div id="slot-${key}"></div>`;
+  pane.innerHTML = `<h2>${label}${note ? `<small>${note}</small>` : ''}</h2><div id="slot-${key}"></div>`;
   contentEl.appendChild(pane);
 }
 function setColor(key, v){ state.colors[key] = v.toUpperCase(); if (key === 'bg') state.transparent = false; render(); }
@@ -411,7 +411,7 @@ xPane.innerHTML = `
       <select id="size" aria-label="저장 크기"><option value="2475">2475px (원본)</option><option value="1024">1024px</option><option value="512">512px</option><option value="256">256px</option></select>
       <button class="b primary" type="button" id="download">PNG 저장</button>
     </div><div class="msg" id="dlMsg"></div></div>
-  <div class="block"><h2>시안 보관<small>이 브라우저에만 남습니다</small></h2>
+  <div class="block"><h2>시안 보관</h2>
     <div class="btns"><button class="b" type="button" id="save">현재 시안 저장</button></div>
     <div class="saved" id="saved" aria-label="저장한 시안"></div></div>`;
 contentEl.appendChild(xPane);
