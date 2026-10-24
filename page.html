@@ -135,8 +135,7 @@ const GROUPS = [
   ['outer',  '날개 바깥', '+ 왕관 보석 3개',               '#DE80A6'],
   ['inner',  '날개 안쪽', '',                              '#F4EEE8'],
   ['ribbon', '리본',      '+ 왕관 가운데 보석',             '#DE80A6'],
-  ['bg',     '배경',      '투명 칩을 고르면 배경과 윤곽선 자리가 비워진 채 저장',  '#222A39'],
-  ['line',   '윤곽선',    '나비 윤곽선 · 리본 · 왕관 보석 테두리',   '#222A39'],
+  ['bg',     '배경',      '투명 칩을 고르면 배경 없이 저장',  '#222A39'],
   ['text',   '글씨',      '리본 + 글씨 버전에만 보입니다',   '#FFFFFF'],
 ];
 const DEFAULTS = Object.fromEntries(GROUPS.map(g => [g[0], g[3]]));
@@ -163,7 +162,9 @@ function hsvToHex(h, s, v){
 
 const state = {version:'text', colors:{...DEFAULTS}, midGem:'mid', transparent:false, frame:false, tab:'version'};
 /* rounded-square frame from slide 2 of the deck, as fractions of the canvas side; emb = where the emblem sits inside it */
-const FRAME = {inset: 24.5 / 540, size: 490.9 / 540, lw: 6 / 540, r: 0.29065 * 490.9 / 540, emb: {x: 52.2 / 540, y: 52.2 / 540, s: 435.7 / 540}};
+const FRAME = {inset: 24.5 / 540, size: 490.9 / 540, lw: 6 / 540, r: 0.29065 * 490.9 / 540, emb: {x: 52.2 / 540, y: 52.2 / 540, s: 435.7 / 540},
+  // thin inner line, proportioned like the shield's outer/inner strokes (about 4.4 : 1, a clear gap of roughly one outer width)
+  inner: {inset: 34.2 / 540, size: (540 - 2 * 34.2) / 540, lw: 1.4 / 540, r: (0.29065 * 490.9 - 9.7) / 540}};
 
 function groupOf(layer){
   switch(layer){
@@ -174,8 +175,7 @@ function groupOf(layer){
     case 'gem_top': return state.midGem === 'top' ? 'ribbon' : 'outer';
     case 'ribbon': return 'ribbon';
     case 'text': return 'text';
-    case 'line': return 'line';
-    default: return 'bg';
+    default: return 'bg';            // bg and line: the outline areas are empty space, so they read as background
   }
 }
 
@@ -225,8 +225,11 @@ function renderScene(target, masks, w){
   if (!state.transparent) { t.fillStyle = state.colors.bg; t.fillRect(0, 0, w, w); }
   t.imageSmoothingQuality = 'high';
   t.drawImage(emb, 0, 0, w, w, FRAME.emb.x * w, FRAME.emb.y * w, FRAME.emb.s * w, FRAME.emb.s * w);
-  const i = FRAME.inset * w, s = FRAME.size * w, r = FRAME.r * w;
-  t.beginPath(); t.roundRect(i, i, s, s, r); t.lineWidth = FRAME.lw * w; t.strokeStyle = state.colors.metal; t.stroke();
+  t.strokeStyle = state.colors.metal;
+  for (const f of [FRAME, FRAME.inner]){
+    const i = f.inset * w, s = f.size * w, r = f.r * w;
+    t.beginPath(); t.roundRect(i, i, s, s, r); t.lineWidth = f.lw * w; t.stroke();
+  }
 }
 
 const preview = document.getElementById('preview');
@@ -248,10 +251,10 @@ function render(){
   });
 }
 
-/* ---------- state code: version.metal.outer.inner.ribbon.bg.text.line.gem[.t]  (older codes lack .line) ---------- */
+/* ---------- state code: version.metal.outer.inner.ribbon.bg.text.gem[.t][.f]  (older codes may carry an extra .line colour, ignored) ---------- */
 function encode(){
   const c = state.colors;
-  return [state.version, c.metal, c.outer, c.inner, c.ribbon, c.bg, c.text, c.line].map(x => x.replace('#', '')).join('.')
+  return [state.version, c.metal, c.outer, c.inner, c.ribbon, c.bg, c.text].map(x => x.replace('#', '')).join('.')
     + '.' + state.midGem + (state.transparent ? '.t' : '') + (state.frame ? '.f' : '');
 }
 function decode(str){
@@ -260,14 +263,14 @@ function decode(str){
   const isHex = h => /^[0-9a-fA-F]{6}$/.test(h);
   const n = isHex(p[7] || '') ? 7 : 6;
   const hex = p.slice(1, 1 + n); if (!hex.every(isHex)) return null;
-  const [metal, outer, inner, ribbon, bg, text, line] = hex.map(h => '#' + h.toUpperCase());
-  return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text, line: line || bg},
+  const [metal, outer, inner, ribbon, bg, text] = hex.map(h => '#' + h.toUpperCase());
+  return {version:p[0], colors:{metal, outer, inner, ribbon, bg, text},
     midGem: p[1 + n] === 'top' ? 'top' : 'mid', transparent: p.slice(1 + n).includes('t'), frame: p.slice(1 + n).includes('f')};
 }
 function apply(s){ Object.assign(state, {version:s.version, colors:{...s.colors}, midGem:s.midGem, transparent:s.transparent, frame:!!s.frame}); render(); }
 
 /* ---------- tabs ---------- */
-const TAB_LABEL = {outer:'날개밖', inner:'날개안', line:'윤곽'};   // shorter tab labels so all nine fit one row on a phone
+const TAB_LABEL = {outer:'날개밖', inner:'날개안'};   // shorter tab labels so all tabs fit one row on a phone
 const TABS = [['version', '버전'], ...GROUPS.map(g => [g[0], TAB_LABEL[g[0]] || g[1]]), ['export', '저장']];
 const tabsEl = document.getElementById('tabs'), contentEl = document.getElementById('content');
 for (const [id, label] of TABS){
@@ -395,8 +398,6 @@ function syncUI(){
   }
   const textTab = document.getElementById('tab-text'); textTab.disabled = state.version !== 'text';
   if (textTab.disabled && state.tab === 'text') state.tab = 'ribbon';
-  const lineTab = document.getElementById('tab-line'); lineTab.disabled = state.transparent;
-  if (lineTab.disabled && state.tab === 'line') state.tab = 'bg';
   if (DEFAULTS[state.tab] !== undefined) openPicker(state.tab);
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   document.querySelectorAll('.pane').forEach(p => p.hidden = p.id !== 'pane-' + state.tab);

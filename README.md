@@ -6,7 +6,8 @@
 ## 파일
 - `index.html` + `masks/` : GitHub Pages 용. 이 두 개를 저장소 루트에 올리면 됨.
 - `emblem-colorizer-standalone.html` : 마스크가 내장된 단일 파일(약 1.7MB). 더블클릭으로 바로 열림.
-- `emblem.svg` : 현재 디자인(리본+글씨, 원본 색) 벡터 파일. 배경 투명, 남색 윤곽선·남색 면 없음(사이트의 투명 저장과 같은 구성). 글자는 패스로 변환되어 폰트 없이 열림.
+- `emblem.svg` : 현재 디자인(리본+글씨, 원본 색) 벡터 파일. 사이트의 투명 저장과 같게, 남색이 보이던 자리(배경·방패 안쪽·윤곽선)는 전부 비어 있음. 글자는 패스로 변환되어 폰트 없이 열림.
+- `make_svg.py` : 배경 사각형만 숨긴 1페이지 PDF → SVG 변환. 남색 영역을 luminance 마스크로 뚫는다. 사용: `python -I make_svg.py slide1_lines.pdf emblem.svg <pymupdf 폴더>`
 - `page.html` : 소스(아티팩트 본체, 스켈레톤 없음). 수정은 여기서 하고 `build_site.py` 실행.
 - `build_layers.py` : 원본 PNG 3장(src_*.png)에서 `masks/` 를 다시 만드는 스크립트.
 
